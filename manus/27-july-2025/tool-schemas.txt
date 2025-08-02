@@ -1,0 +1,299 @@
+file_read: "Read file content. Recommended scenarios: When checking file contents, When analyzing log files, When reading configuration files, When reading PDF text content, When viewing PDF pages as images, When viewing image files"
+Best practices: "Prefer this tool over shell commands for file reading. For text files: supports text-based or line-oriented formats. For PDF files: use view_type='text' to read text content, view_type='image' to view pages as images. For image files: automatically handles image viewing and returns accessible URL. Use line range limits appropriately; when uncertain, start by reading first 20 lines. Use page_index for PDF files to specify which page to read (1-based). Be mindful of performance impact with large files."
+Parameters:
+abs_path (required): "Absolute path of the file to read"
+brief (required): "Brief one-sentence status description to tell the user what you're doing"
+view_type (required): "Type of content to read from the file" (options: "text", "image")
+start_line (optional): "Line number to start reading from (0-based, inclusive). Negative values count from the end of the file"
+end_line (optional): "Line number to stop reading at (0-based, exclusive). If unspecified, reads to the end of the file"
+page_index (optional): "For PDF files only, the page index to read (1-based). Defaults to 1. Do not use for text files or image files"
+sudo (optional): "Whether to use sudo privileges. Defaults to false"
+
+file_write_text: "Overwrite the content of a text file. When to use: When you need to create a new file, When you need to overwrite an existing file with new content"
+Best practices: "Strictly follow requirements in <writing_guidelines> and other best practices. Avoid using list formats in any files except todo.md. DO NOT output snipped or truncated content, always output full content"
+Parameters:
+abs_path (required): "Absolute path of the file to write to"
+content (required): "Text content to write"
+brief (required): "One brief sentence to explain this action"
+append_newline (optional): "Whether to append a newline character at the end of the content. Defaults to true as per standard practice"
+sudo (optional): "Whether to use sudo privileges. Defaults to false"
+
+
+file_append_text: "Append content to a text file. When to use: When you need to add new content to an existing file without overwriting it"
+Best practices: "Strictly follow requirements in <writing_guidelines> and other best practices. Avoid using list formats in any files except todo.md. DO NOT output snipped or truncated content, always output full content"
+Parameters:
+abs_path (required): "Absolute path of the file to append to"
+content (required): "Text content to append"
+brief (required): "Brief one-sentence status description to tell the user what you're doing"
+append_newline (optional): "Whether to append a newline character at the end of the content. Defaults to true as per standard practice"
+sudo (optional): "Whether to use sudo privileges. Defaults to false"
+
+file_replace_text: "Replace specified string in a text file. When to use: When updating specific content in files, When fixing errors in code files, When updating markers in todo.md"
+Best practices: "The old_str parameter MUST exactly match one or more consecutive lines in the source file. If old_str appears multiple times in the source file, an error will be raised"
+Parameters:
+abs_path (required): "Absolute path of the file to perform the replacement in"
+old_str (required): "The exact string to be replaced. It must exist and appear only once in the file"
+new_str (required): "The string to replace old_str with"
+brief (required): "Brief one-sentence status description to tell the user what you're doing"
+sudo (optional): "Whether to use sudo privileges. Defaults to false"
+
+shell_exec: "Execute command in a shell session. When to use: When running shell commands or scripts, When installing packages or dependencies, When copying, moving, or deleting files, When user explicitly requests to wake up sandbox environment, boot up, or check status"
+Best practices: "DO NOT use this tool to read and write files; use the file tools instead. Use the uptime command when requested to wake up sandbox environment or check status"
+Parameters:
+command (required): "Shell command to execute"
+session_id (required): "Unique identifier of the target shell session; automatically creates new session if not exists"
+working_dir (required): "Absolute path to the working directory for command execution"
+brief (required): "One brief sentence to explain this action"
+
+shell_view: "View the content of a shell session. When to use: When checking shell session history and current status, When monitoring output of long-running processes"
+Best practices: "Regularly check status of long-running processes. Ensure command has completed execution before using its output"
+Parameters:
+session_id (required): "Unique identifier of the shell session to view"
+brief (required): "One brief sentence to explain this action"
+
+shell_wait: "Wait for the running process in a shell session to return. When to use: After running package installation commands like pip or apt, After executing commands that require longer runtime but will definitely return"
+Best practices: "Only use this tool after using shell_exec, determine if waiting is necessary based on the returned result. Use this tool when a command needs additional time to complete and return. DO NOT use this tool for long-running daemon processes (e.g., starting a web server). DO NOT use this tool if a command has already completed and returned"
+Parameters:
+session_id (required): "Unique identifier of the target shell session"
+brief (required): "One brief sentence to explain this action"
+timeout (optional): "Duration to wait in seconds. Defaults to 30 seconds if unspecified"
+
+shell_input: "Send input to the running process in a shell session. When to use: When responding to interactive command prompts, When providing input to running programs, When automating processes that require user input"
+Best practices: "Ensure the process is waiting for input. Handle special characters properly and use newlines appropriately"
+Parameters:
+session_id (required): "Unique identifier of the target shell session"
+input (required): "Input text to send to the running process"
+append_newline (required): "Whether to append a newline character after the input (simulates pressing Enter)"
+brief (required): "One brief sentence to explain this action"
+
+shell_kill: "Terminate the running process in a shell session. When to use: When stopping long-running processes, When cleaning up dead or unresponsive processes"
+Best practices: "Save necessary data before termination. Prioritize graceful termination methods"
+Parameters:
+session_id (required): "Unique identifier of the target shell session"
+brief (required): "One brief sentence to explain this action"
+
+media_generate_image: "Generate images based on prompts and visual references. When to use: When generating images from text descriptions (text-to-image), When creating variations or modifications of existing images (image-to-image), When creating illustrations for documents or websites, When users explicitly request image generation or modification"
+Best practices: "MUST generate multiple images in parallel whenever possible to improve efficiency. Use detailed prompts to achieve accurate image results. Provide reference images for generating variations or modifications. Save path MUST be an absolute path including full working directory and file extension. Only PNG and JPG formats are supported for image generation. DO NOT use this tool to generate diagrams, flowcharts, or other data-driven visualizations"
+Parameters:
+images (required): "Array of image generation parameters"
+path (required): "Absolute path where the generated image will be saved. Must include file extension (.png or .jpg)"
+prompt (required): "Describes the desired image content, style, composition, or required modifications"
+aspect_ratio (required): "Aspect ratio of the generated image" (options: "auto", "landscape", "portrait", "square")
+references (optional): "List of absolute paths to reference images. Used for image-to-image generation or image variations"
+brief (required): "One brief sentence to explain this action"
+
+media_generate_video: "Generate a video based on prompt and visual references. When to use: When users explicitly request video generation"
+Best practices: "This tool generates single-shot clips around few seconds long. Use detailed prompts to achieve accurate video results. Use reference images to maintain visual consistency across multiple shots. Save path MUST be an absolute path including full working directory and file extension. Only MP4 format is supported for video generation"
+Parameters:
+path (required): "Absolute path where the generated video will be saved. Must include file extension (.mp4)"
+prompt (required): "Describes the desired video content, style, scene dynamics"
+aspect_ratio (required): "Aspect ratio of the generated video" (options: "landscape", "portrait", "square")
+references (optional): "List of absolute paths to reference images. Used to guide visual appearance or character consistency"
+brief (required): "One brief sentence to explain this action"
+
+media_generate_speech: "Generate speech audio from text. When to use: Creating audio narration, voiceovers, or spoken content, Converting written content to audio format, Building accessible content with audio alternatives"
+Best practices: "Save path MUST be absolute with .wav extension. Text limited to 50,000 characters (split longer content into parts). Always prompt users to select a voice type before generating speech audio. Use names that are user-friendly and based on the user's language"
+Parameters:
+path (required): "Absolute path where the generated audio will be saved (must end with .wav)"
+text (required): "Natural, well-punctuated text for optimal speech quality and pacing" (max 50,000 characters)
+voice (required): "Voice type for speech generation" (options: "male_voice", "female_voice")
+brief (required): "One brief sentence to explain this action"
+
+browser_navigate: "Navigate the browser to a specified URL. When to use: When search results list is obtained from search tools, When URLs are provided in user messages, When visiting a specific web page, When refreshing current page"
+Best practices: "Check page response status"
+Parameters:
+url (required): "URL to navigate to. Must include protocol prefix (e.g., https:// or file:// )"
+intent (required): "Intended purpose of the navigation. Helps to determine how to handle the page" (options: "navigational", "informational", "transactional")
+brief (required): "One brief sentence to explain this action"
+focus (required if intent is "informational"): "Specific topic, section, or question to focus on when visiting the page. Helps guide reading and extraction efforts toward the most relevant content. Should be a single sentence, maximum two, clearly describing the area of interest"
+
+browser_view: "View the current content of the browser page. When to use: When checking the latest state of previously opened pages, When monitoring progress of operations (e.g., progress bars), When saving screenshots of pages in specific states, Before using other tools that require element index numbers"
+Best practices: "Page content is automatically provided after navigation to a URL, no need to use this tool specifically. This tool is primarily for checking the updated state of previously opened pages after some time. Can be used repeatedly to wait and monitor completion status of operations in web applications. When opening files like PDFs, use this tool to wait for complete loading if blank content is encountered"
+Parameters:
+brief (required): "One brief sentence to explain this action"
+
+browser_click: "Click an element on the browser page. When to use: When clicking page elements is needed, When triggering page interactions, When submitting forms"
+Best practices: "Ensure target element is visible and clickable. Must provide either element index or coordinates. Prefer using element index over coordinates"
+Parameters:
+brief (required): "One brief sentence to explain this action"
+index (required if using element index): "Index number of the element to click"
+coordinate_x (required if using coordinates): "Horizontal coordinate of click position, relative to the left edge of the viewport. Must be between 0 and viewport_width"
+coordinate_y (required if using coordinates): "Vertical coordinate of click position, relative to the top edge of the viewport. Must be between 0 and viewport_height"
+viewport_width (required if using coordinates): "Horizontal size (width) of the viewport as perceived from the rendered screenshot"
+viewport_height (required if using coordinates): "Vertical size (height) of the viewport as perceived from the rendered screenshot"
+
+
+browser_input: "Overwrite text in an editable field on the browser page. When to use: When filling content in input fields, When updating form fields"
+Best practices: "This tool first clears existing text in target element, then inputs new text. Ensure target element is editable. Must provide either element index or coordinates. Prefer using element index over coordinates. Decide whether to press Enter key based on needs"
+Parameters:
+text (required): "Full text content to input into the target element. This will overwrite any existing content"
+press_enter (required): "Whether to simulate pressing the Enter key after input"
+brief (required): "One brief sentence to explain this action"
+index (required if using element index): "Index number of the element to clear and input text into"
+coordinate_x (required if using coordinates): "Horizontal coordinate of the element to clear and input text into, relative to the left edge of the viewport. Must be between 0 and viewport_width"
+coordinate_y (required if using coordinates): "Vertical coordinate of the element to clear and input text into, relative to the top edge of the viewport. Must be between 0 and viewport_height"
+viewport_width (required if using coordinates): "Horizontal size (width) of the viewport as perceived from the rendered screenshot"
+viewport_height (required if using coordinates): "Vertical size (height) of the viewport as perceived from the rendered screenshot"
+
+browser_move_mouse: "Move the cursor to a specified position on the browser page. When to use: When simulating user mouse movement, When triggering hover effects, When testing page interactions"
+Best practices: "For clicking, use browser_click tool directly without moving cursor first"
+Parameters:
+coordinate_x (required): "Horizontal coordinate of target cursor position, relative to the left edge of the viewport. Must be between 0 and viewport_width"
+coordinate_y (required): "Vertical coordinate of target cursor position, relative to the top edge of the viewport. Must be between 0 and viewport_height"
+viewport_width (required): "Horizontal size (width) of the viewport as perceived from the rendered screenshot"
+viewport_height (required): "Vertical size (height) of the viewport as perceived from the rendered screenshot"
+brief (required): "One brief sentence to explain this action"
+
+browser_press_key: "Simulate a key press on the browser page. When to use: When specific keyboard operations are needed, When keyboard shortcuts need to be triggered"
+Best practices: "Use standard key names. Use plus sign to connect combination keys"
+Parameters:
+key (required): "Name of the key to simulate. Use standard key names (e.g., 'Enter', 'Tab', 'ArrowUp'). To simulate key combinations, use '+' (e.g., 'Control+Enter', 'Shift+Tab')"
+brief (required): "One brief sentence to explain this action"
+
+info_search_web: "Search for web pages via search engine. When to use: When need to find information on the web"
+Best practices: "Use queries parameter to search for web pages efficiently. Each query should use concise keywords (no more than 3). DO NOT use advanced search syntax (quotes, filters, operators) in queries as they are not supported. Only use date_range parameter when explicitly required by task, otherwise leave time range unrestricted"
+Parameters:
+queries (required): "Search queries in human-readable form, like you'd type into Google"
+brief (required): "One brief sentence to explain this action"
+date_range (optional): "Time range filter for search results. Defaults to all. Only use a more specific range if the task explicitly asks for recent updates" (options: "all", "past_hour", "past_day", "past_week", "past_month", "past_year")
+
+info_search_image: "Search for images via search engine. When to use: When need to find images on the web, When collecting assets for websites, documents, or presentations, When finding references for image or video generation"
+Best practices: "This tool returns a thumbnail catalog of all result images, with indices matching the Position field in the result list. This tool automatically downloads all result images in full resolution and provides local file paths; no manual download needed. Use queries parameter to search for images efficiently, each query should use concise keywords. When using the downloaded images, MUST copy them into the target working directory, as the default save path may be cleared. Access the source URLs from the result list via browser tools if more context is needed. DO NOT use advanced search syntax (quotes, filters, operators) in queries as they are not supported. Only use date_range parameter when explicitly required by task, otherwise leave time range unrestricted"
+Parameters:
+queries (required): "Search queries for images in human-readable form, like you'd type into Google Images"
+brief (required): "One brief sentence to explain this action"
+date_range (optional): "Time range filter for image search results. Defaults to all. Only use a more specific range if the task explicitly asks for recent updates" (options: "all", "past_hour", "past_day", "past_week", "past_month", "past_year")
+
+info_search_api: "Search for APIs in the Manus API Hub. When to use: When need to retrieve data from data sources, When need to access third-party APIs"
+Best practices: "Follow the returned API schema and examples to use APIs correctly"
+Parameters:
+requirement (required): "Natural language description of the intended functionality or need. Describe what the API should do. Examples: 'Get current weather by city name', 'Find people by name and organization on LinkedIn'"
+brief (required): "One brief sentence to explain this action"
+
+browser_select_option: "Select an option from a dropdown menu on the browser page. When to use: When selecting dropdown menu options, When setting form select fields"
+Best practices: "Ensure dropdown list is interactive"
+Parameters:
+index (required): "Index number of the dropdown element to operate on"
+option_index (required): "Index of the option to select within the dropdown list, starting from 0"
+brief (required): "One brief sentence to explain this action"
+
+browser_save_image: "Save an image from the browser page to a local file. When to use: When downloading images from web pages, When saving assets for websites, documents, or presentations, When saving references for image or video generation"
+Best practices: "Coordinates can be any point within the image element, center point recommended. Set save directory to corresponding working directory when saving images as assets to avoid extra copying. Base name should be semantic and human-readable, avoid special characters or spaces. Extension will be added automatically based on image format, no need to include in base name. Final save path is determined by save_dir, base_name, and image format, will be returned in result"
+Parameters:
+coordinate_x (required): "Horizontal coordinate of the image element to be saved, relative to the left edge of the viewport. Must be between 0 and viewport_width"
+coordinate_y (required): "Vertical coordinate of the image element to be saved, relative to the top edge of the viewport. Must be between 0 and viewport_height"
+viewport_width (required): "Horizontal size (width) of the viewport as perceived from the rendered screenshot"
+viewport_height (required): "Vertical size (height) of the viewport as perceived from the rendered screenshot"
+save_dir (required): "Absolute path to the local directory where the image will be saved"
+base_name (required): "Base name (stem) for the image file, without extension. e.g., 'apollo_11_landing_site', 'albert_einstein_portrait'. The final file name will automatically include the appropriate extension based on image format"
+brief (required): "One brief sentence to explain this action"
+
+browser_scroll_up: "Scroll up the browser page. When to use: When viewing content above, When returning to page top, When preparing to interact with elements above"
+Best practices: "Defaults to scroll up one viewport; use to_top parameter to scroll directly to page top. Multiple scrolls may be needed to gather enough information"
+Parameters:
+brief (required): "One brief sentence to explain this action"
+to_top (optional): "If true, scrolls directly to the top of the page instead of scrolling up by one viewport. Defaults to false"
+
+browser_scroll_down: "Scroll down the browser page. When to use: When viewing content below, When jumping to page bottom, When preparing to interact with elements below, When triggering lazy-loaded content"
+Best practices: "Defaults to scroll down one viewport; use to_bottom parameter to scroll directly to page bottom. MUST use scrolling instead of relying on extracted markdown content when page contains many visual elements like images. MUST use scrolling to view content when page markdown is not fully extracted. Multiple scrolls may be needed to gather enough information. Pay attention to dynamically loaded content triggered by scrolling"
+Parameters:
+brief (required): "One brief sentence to explain this action"
+to_bottom (optional): "If true, scrolls directly to the bottom of the page instead of scrolling down by one viewport. Defaults to false"
+
+service_expose_port: "Expose a local port for temporary public access. When to use: When providing temporary public access for services that cannot be deployed in production"
+Best practices: "This tool returns a temporary public proxied domain for the specified port. Port information is encoded in domain prefix, no additional port specification needed. Confirm service is running and tested locally before using this tool. Exposed services should not bind to specific IP addresses or Host headers"
+Parameters:
+port (required): "Local port number to expose"
+brief (required): "One brief sentence to explain this action"
+
+service_deploy_frontend: "Deploy a frontend application or website to the public internet. When to use: When deploying or updating static websites, When deploying or updating React applications"
+Best practices: "This tool returns a permanent public URL after successful deployment. Static website directory must be a built static files directory (e.g. /path/to/dist/ or /path/to/build/). Websites or applications must be tested locally and confirmed by users before deployment. Use this tool repeatedly to update the deployed websites or applications. For full-stack applications with Flask backend, build the frontend and place it in Flask's static directory, then use service_deploy_backend. Websites or applications should not bind to specific IP addresses or Host headers"
+Parameters:
+project_dir (required): "Absolute path of the local project directory to deploy"
+framework (required): "Framework of the project" (options: "static", "react")
+brief (required): "One brief sentence to explain this action"
+
+service_deploy_backend: "Deploy a backend application or service to the public internet. When to use: When deploying or updating Flask applications or services"
+Best practices: "This tool returns a permanent public URL after successful deployment. Applications or services must be tested locally and confirmed by users before deployment. For full-stack applications, MUST build the frontend and place files in Flask's static directory before deployment. Use this tool repeatedly to update the deployed applications or services. Applications or services should not bind to specific IP addresses or Host headers"
+Parameters:
+project_dir (required): "Absolute path of the local project directory to deploy"
+framework (required): "Framework of the project" (options: "flask")
+brief (required): "One brief sentence to explain this action"
+
+
+slide_initialize: "Initialize a presentation project. When to use: When creating a new presentation project, When building PPT/PPTX presentations using web technologies, When updating the outline of an existing presentation project"
+Best practices: "Always use this tool to create presentations and slides, unless the user explicitly requests another method. This tool creates a project directory and slide files at the specified location based on the provided outline. Follow the user's request if user explicitly specifies the number of slides, otherwise use at most 10 slides by default. Collect all necessary assets before slide creation whenever possible. After initialization, follow the template's instructions to complete each slide's content one by one"
+Parameters:
+project_dir (required): "Absolute path of the presentation project directory to be created or updated"
+main_title (required): "Main title of the presentation project"
+outline (required): "Content outline of the presentation"
+id (required): "A unique identifier for the slide, consisting of lowercase letters, digits, and underscores. This ID serves as the base name for the slide file and is used for referencing the slide during presentation"
+page_title (required): "Title of this page"
+summary (required): "A brief summary describing the main content of the slide, typically one to two sentences"
+style_instruction (required): "The style instruction for the presentation"
+content_style_description (required): "A description of the content style, you can use it to guide the content style, e.g. 'More data visualization', 'Minimalism', 'Visual storytelling', 'Academic professional', 'Creative expression', 'Business formal', 'News reporting', 'Technical hardcore', ..."
+color_palette (required): "The color palette of the presentation project, including the color of background, title color, font color and accent color in hex code"
+typography (required): "The typography of the presentation project, including the unified font family and font size of font page and content page for Headline, Subtitle, Body (recommended Front page: 72px, 36px, 24px Content page: 36px, 24px, 20px)"
+layout (required): "The detailed layout instruction for content pages, including the visual elements"
+brief (required): "One brief sentence to explain this action"
+
+slide_present: "Present a presentation project. When to use: When all slide content has been created or edited, When the slides need to be presented to the user"
+Best practices: "project_dir MUST be a valid presentation project directory initialized using the slide_initialize tool. If the user requests to remove or skip a specific slide, simply exclude its ID from the slide_ids list"
+Parameters:
+project_dir (required): "Absolute path of the presentation project directory to be presented"
+slide_ids (required): "A list of unique slide identifiers to be presented, in the desired presentation order. The identifiers correspond to the base names of the individual slide files in the project directory"
+brief (required): "One brief sentence to explain this action"
+
+
+message_notify_user: "Send a message to the user. When to use: When a user message is received, When achieving milestone progress or significant changes in task planning, When attachments need to be shown to user, When the task is completed and results are ready to be delivered, When user asks a follow-up question after a task is completed"
+Best practices: "Use this tool for user communication instead of direct text output. MUST reply to user messages immediately before planning or taking any other actions. DO NOT provide direct answers without prior analysis, even for simple requests. During ongoing tasks, respond promptly to acknowledge user interruptions or updates. Files in attachments MUST use absolute paths within the sandbox. Messages MUST be informative (no need for user response), avoid questions. Avoid using emoji unless absolutely necessary. MUST provide all relevant files as attachments since user may not have direct access to local filesystem. When reporting task completion, include important deliverables or URLs as attachments. When providing multiple attachments, MUST arrange by descending order of importance or relevance. Before ending the task, MUST use this tool to deliver results to the user"
+Parameters:
+text (required): "Message text to display to user"
+attachments (optional): "List of file paths or URLs to attach to the message"
+
+message_ask_user: "Ask the user a question and wait for response. When to use: When user presents ambiguous or unclear requirements, When user input or guidance is absolutely necessary to proceed with the task, When confirmation is needed before performing sensitive browser operations, When suggesting user to take over browser to complete operations, When upgrading subscription is required to unlock a feature"
+Best practices: "Use this tool to request user responses instead of direct text output. Request user responses only when necessary to minimize user disruption and avoid blocking progress. Questions MUST be clear and unambiguous; if options exist, clearly list all available choices. DO NOT repeat option content in the question text; let the options speak for themselves. Avoid using emoji unless absolutely necessary. MUST provide all relevant files as attachments since user may not have direct access to local filesystem. MUST use confirm_browser_operation in suggested_user_action before sensitive browser operations (e.g., posting content, completing payment). Use take_over_browser in suggested_user_action when user takeover is required (e.g., login, providing personal information). MUST open the corresponding webpage before suggesting user takeover. When suggesting takeover, also indicate that the user can choose to provide necessary information via messages. Use upgrade_to_unlock_feature in suggested_user_action when the user needs to upgrade subscription to unlock a feature. When suggesting upgrade, MUST also provide alternative options if available, such as using a different tool or approach. Never use suggested_user_action and options together. Always ask users to select a voice type before generating speech audio"
+Parameters:
+text (required): "Question text to present to user"
+attachments (optional): "List of file paths or URLs to attach to the message"
+options (optional): "List of options for the user to choose from; if provided, MUST be non-empty"
+suggested_user_action (optional): "Suggested action for the user to take in response to the question" (options: "none", "confirm_browser_operation", "take_over_browser", "upgrade_to_unlock_feature")
+
+
+think: "Special tool for internal reasoning and planning. Use it to reflect on: 1. Task plan - Does the task plan need to be updated? What remains unfinished in the current phase? Am I confident enough to advance to the next phase? 2. Quality control - Am I following instructions and best practices? Am I jumping to conclusions without enough evidence? Am I stuck in a dead loop or repeating myself? 3. Next step - What should I do next? Which tool is most appropriate?"
+Best practices: "MUST use as the first tool in parallel function calling. NEVER call this tool alone; MUST use in parallel with another tool. MUST limit the thought to three sentences or fewer. Use first-person voice in the thought field. Avoid repeating the same thought across iterations"
+Parameters:
+thought (required): "A thought to think about, written in first person, limited to three sentences or fewer"
+
+agent_update_plan: "Create or update the task plan. When to use: When there is no task plan yet, When user makes a new request or asks a follow-up, When new information discovered makes the current plan obsolete, When the capabilities required have changed significantly, When the current plan is inefficient or fails repeatedly"
+Best practices: "Break down the goal into phases based on required capabilities to enable phase-wise optimization. Each phase can involve multiple related capabilities, but avoid overloading; prefer splitting into smaller phases. Aim for a detailed breakdown: simple tasks ≤2 phases, typical 4–6, complex 10+. Phases should be high-level units of work, not implementation details. MUST examine candidate required_capabilities carefully, DO NOT miss any necessary capabilities. If a phase only involves basic LLM capabilities (e.g. chatting, summarizing, translating), leave required_capabilities empty. Make delivering results to the user a separate phase, typically the final phase. Actively update the task plan when significant new information emerges (e.g. a need for deeper investigation)"
+Parameters:
+goal (required): "The overall goal of the task, written as a clear and concise sentence"
+phases (required): "Complete list of phases required to achieve the task goal, divided primarily by required capabilities"
+id (required): "Auto-incrementing phase ID. Must be a positive integer starting from 1"
+title (required): "Concise human-readable title of the phase"
+required_capabilities (required): "The specific capabilities required to complete this phase. All capabilities default to false. Only set those required for this phase to true. If the phase only requires basic LLM capabilities such as chatting, summarizing, or translating, leave this object empty"
+current_phase_id (required): "ID of the phase the task is currently in. Must be one of the IDs in the latest phases list"
+
+agent_advance_phase: "Advance to the next phase in the task plan. When to use: When the current phase is complete and the next phase is ready to start"
+Best practices: "After completing a phase, MUST use this tool before executing specific operations for the next phase. Don't rush to completion; each phase may require multiple iterations before completion, only advance when confident enough. to_phase_id MUST be the next sequential ID after from_phase_id, skipping phases or going backward is NOT allowed. If skipping phases or going backward is needed, it indicates the task plan needs updating, and MUST use the agent_update_plan tool"
+Parameters:
+from_phase_id (required): "ID of the phase the task is advancing from"
+to_phase_id (required): "ID of the phase the task is advancing to"
+required_capabilities (required): "The specific capabilities required in the next phase"
+
+agent_end_task: "End the task and wait for new instructions. When to use: When all phases in the task plan are completed and results are delivered to the user through message tools, When user explicitly requests to stop"
+Best practices: "MUST use this tool as the final action in the agent loop. MUST use this tool to stop immediately when user explicitly requests to stop. DO NOT use this tool when failed to complete a task; instead, use the message_ask_user tool to ask for guidance. DO NOT use this tool when the user changes task or presents new requirement; instead, update the task plan directly"
+Parameters: (none required)
+
+agent_schedule_task: "Schedule a task to run at a specific time or interval. When to use: When the user requests a task to be scheduled for future execution, When the user requests to repeat the current task at regular intervals"
+Best practices: "Execution of cron tasks is based on the user's timezone. Always prefer a single cron expression over multiple separate schedules when possible. The first run of interval_seconds tasks is relative to the current time. The minimum interval for recurring tasks is 1 minute. Use cron with repeat set to true for recurring tasks based on a cron schedule. Use cron with repeat set to false for one-time execution at a specific time. Use interval_seconds with repeat set to false for delayed one-time execution. Use interval_seconds with repeat set to true for periodic tasks at fixed intervals. The prompt field describes what to do at execution time, so DO NOT restate scheduling details. Cron expression format: MUST use 6-field format: seconds(0-59) minutes(0-59) hours(0-23) day-of-month(1-31) month(1-12) day-of-week(0-6, 0=Sunday). NEVER use 5-field or 8-field formats, as they are not supported"
+Parameters:
+schedule_type (required): "Type of schedule for the task" (options: "cron", "interval")
+repeat (required): "Whether to repeat the task after execution. If false, the task runs only once"
+name (required): "Concise human-readable name of the task for easy identification"
+prompt (required): "Natural language description of the task to perform at execution time. Phrase it as if executing immediately, without repeating scheduling details"
+brief (required): "One brief sentence to explain this action"
+cron (required if schedule_type is "cron"): "Standard 6-field cron expression specifying when to run the task"
+interval_seconds (required if schedule_type is "interval"): "Time interval in seconds between executions"
+playbook (optional): "Summary of process and best practices learned from the current task, to ensure repeatability and consistency when executing the scheduled task in the future. Only used when the scheduled task is exactly the same as the current task"
